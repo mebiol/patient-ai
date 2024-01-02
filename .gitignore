@@ -1,0 +1,7 @@
+*.env
+*.csv
+*.pdf
+*./data
+*.faiss
+*.pkl
+*.bin
