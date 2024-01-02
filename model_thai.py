@@ -5,6 +5,8 @@ from langchain.llms.ctransformers import CTransformers
 from langchain.chains import RetrievalQA
 import requests
 import re
+from transformers import AutoTokenizer, AutoModelForCausalLM
+from transformers import pipeline
 # import chainlit  as cl
 
 DB_FAISS_PATH = 'vectorstores/db_faiss'
@@ -40,8 +42,10 @@ def retrieval_qa_chain(llm, prompt, db):
 #Loading the model
 def load_llm():
     # Load the locally downloaded model here
+    # tokenizer = AutoTokenizer.from_pretrained("openthaigpt/openthaigpt-1.0.0-beta-13b-chat-gguf")
+    model = pipeline("text-generation", model="openthaigpt/openthaigpt-1.0.0-alpha-7b-chat-ckpt-hf")
     llm = CTransformers(
-        model = "llama-2-7b-chat.ggmlv3.q8_0.bin",
+        model = model,
         model_type="llama",
         max_new_tokens = 512,
         temperature = 0.5
@@ -85,36 +89,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# #chainlit code
-# @cl.on_chat_start
-# async def start():
-#     chain = qa_bot()
-#     msg = cl.Message(content="Starting the bot...")
-#     await msg.send()
-#     msg.content = "Hi, Welcome to Medical Bot. What is your query?"
-#     await msg.update()
-
-#     cl.user_session.set("chain", chain)
-
-# @cl.on_message
-# async def main(message: cl.Message):
-#     chain = cl.user_session.get("chain") 
-#     print('=====================================')
-#     print(chain)
-#     cb = cl.AsyncLangchainCallbackHandler(
-#         stream_final_answer=True, answer_prefix_tokens=["FINAL", "ANSWER"]
-#     )
-#     cb.answer_reached = True
-#     print('-----------------------------------')
-#     print(message.content)
-#     res = await chain.acall(message.content, callbacks=[cb])
-#     answer = res["result"]
-#     sources = res["source_documents"]
-
-#     if sources:
-#         answer += f"\nSources:" + str(sources)
-#     else:
-#         answer += "\nNo sources found"
-
-#     await cl.Message(content=answer).send()
